@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Approval Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6 border-b pb-2">Loan Application System</h2>
+        
+        <form id="loanForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Categorical Dropdowns -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Gender</label>
+                <select id="Gender" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Married</label>
+                <select id="Married" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Dependents</label>
+                <select id="Dependents" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3+">3+</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Education</label>
+                <select id="Education" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="Graduate">Graduate</option>
+                    <option value="Not Graduate">Not Graduate</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Self Employed</label>
+                <select id="Self_Employed" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Property Area</label>
+                <select id="Property_Area" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="Urban">Urban</option>
+                    <option value="Rural">Rural</option>
+                    <option value="Semiurban">Semiurban</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Credit History</label>
+                <select id="Credit_History" class="mt-1 block w-full border border-slate-300 rounded-md p-2" required>
+                    <option value="-">Select</option>
+                    <option value="1.0">Good (1.0)</option>
+                    <option value="0.0">Bad (0.0)</option>
+                </select>
+            </div>
+
+            <!-- Numerical Inputs -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Applicant Income ($)</label>
+                <input type="number" id="ApplicantIncome" class="mt-1 block w-full border border-slate-300 rounded-md p-2" placeholder="e.g. 5000" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Co-Applicant Income ($)</label>
+                <input type="number" id="CoapplicantIncome" class="mt-1 block w-full border border-slate-300 rounded-md p-2" placeholder="e.g. 2000" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Loan Amount (in thousands)</label>
+                <input type="number" id="LoanAmount" class="mt-1 block w-full border border-slate-300 rounded-md p-2" placeholder="e.g. 150" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Loan Amount Term (days)</label>
+                <input type="number" id="Loan_Amount_Term" class="mt-1 block w-full border border-slate-300 rounded-md p-2" placeholder="e.g. 360" required>
+            </div>
+
+            <div class="md:col-span-2 mt-4">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded">
+                    Predict Loan Status
+                </button>
+            </div>
+        </form>
+
+        <!-- Container to display the prediction result -->
+        <div id="resultBox" class="mt-6 hidden p-4 rounded-md text-center font-bold text-lg">
+            <!-- Results injected via JS -->
+        </div>
+
+    </div>
+
+    <script>
+       document.getElementById('loanForm').addEventListener('submit', async function(e) {
+    // 1. Prevent the page from refreshing when the user clicks submit
+    e.preventDefault();
+
+    // 2. Change the button text to show it's loading
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerText;
+    submitBtn.innerText = "Processing...";
+    submitBtn.disabled = true;
+
+    // 3. Gather all inputs and format them strictly for the FastAPI backend
+    const payload = {
+        Gender: document.getElementById('Gender').value,
+        Married: document.getElementById('Married').value,
+        Dependents: document.getElementById('Dependents').value,
+        Education: document.getElementById('Education').value,
+        Self_Employed: document.getElementById('Self_Employed').value,
+        // Parse floats so they are sent as numbers, not strings
+        ApplicantIncome: parseFloat(document.getElementById('ApplicantIncome').value),
+        CoapplicantIncome: parseFloat(document.getElementById('CoapplicantIncome').value),
+        LoanAmount: parseFloat(document.getElementById('LoanAmount').value),
+        Loan_Amount_Term: parseFloat(document.getElementById('Loan_Amount_Term').value),
+        Credit_History: parseFloat(document.getElementById('Credit_History').value),
+        Property_Area: document.getElementById('Property_Area').value
+    };
+
+    try {
+        // 4. Send the POST request to your local server
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+      
+        const resultBox = document.getElementById('resultBox');
+        resultBox.className = "mt-6 p-4 rounded-md text-center font-bold text-lg"; 
+        
+
+        if (data['Loan Status'] === true) {
+            resultBox.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-300');
+            resultBox.innerText = `Loan Approved! (Confidence: ${data['Confident'].toFixed(1)}%)`;
+        } else {
+            resultBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-300');
+            resultBox.innerText = `Loan Rejected. (Confidence: ${data['Confident'].toFixed(1)}%)`;
+        }
+    } catch (error) {
+        console.error("Error making prediction:", error);
+        alert("Failed to connect to the prediction API. Is your FastAPI server running?");
+    } finally {
+        // Restore the button state
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+    }
+});
+        
+    </script>
+</body>
+</html>
