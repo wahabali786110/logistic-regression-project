@@ -5,6 +5,7 @@ import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 model=joblib.load('loan_model.pkl')
 preprocessor=joblib.load('preprocessor.pkl')
@@ -25,6 +26,7 @@ class LoanApplication(BaseModel):
 app=FastAPI()
 
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
