@@ -24,13 +24,17 @@ The final optimized model achieves the following metrics on the test dataset:
 ## 📂 Project Structure
 ```text
 logistic-regression-project/
-│
-├── data/                   # Raw and processed datasets
-├── notebooks/              # Jupyter notebooks for EDA and model training
-├── models/                 # Saved .pkl files (model and preprocessor)
-├── main.py                 # FastAPI application setup
-├── requirements.txt        # Python dependencies
-└── README.md               # Project documentation
+|
+├── static/                   # Static assets (e.g., favicon)
+├── templates/                # HTML templates for the web interface
+├── .gitignore                # Git ignore rules
+├── README.md                 # Project documentation
+├── app.py                    # FastAPI application setup and backend logic
+├── load_prediction.ipynb     # Jupyter notebook for EDA and model training
+├── loan_model.pkl            # Saved trained machine learning model
+├── preprocessor.pkl          # Saved data preprocessor/scaler
+├── requirements.txt          # Python dependencies
+└── train.csv                 # Raw training dataset
 ```
 
 ## 💻 Local Setup & Installation
